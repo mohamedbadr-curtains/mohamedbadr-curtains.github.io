@@ -2,7 +2,8 @@
 # لو مسحت سطر أو كتبت لون غلط، الموقع بيرجع للون القديم بتاعه.
 background: #f6f1ea
 text: #2b2326
-accent:yellow 
+accent: #b8893c
 button: #7a1f3d
 button-text: #ffffff
 small-text: #5d5155
+
