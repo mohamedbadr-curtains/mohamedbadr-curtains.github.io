@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ألواني | تلوين للبنات</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; font-family:'Segoe UI', Tahoma, sans-serif; -webkit-tap-highlight-color:transparent; }
+  body { background:#fff5f8; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:12px; }
+  h1 { color:#d6336c; font-size:24px; margin:6px 0 2px; }
+  .sub { color:#a15c76; font-size:13px; margin-bottom:10px; }
+  #pages { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; justify-content:center; }
+  .pageBtn { background:#fff; border:2px solid #f3c2d4; color:#d6336c; border-radius:20px; padding:8px 16px; font-size:14px; cursor:pointer; }
+  .pageBtn.active { background:#d6336c; color:#fff; }
+  #board { background:#fff; border-radius:20px; box-shadow:0 4px 20px rgba(214,51,108,.15); padding:8px; width:100%; max-width:440px; }
+  svg { width:100%; height:auto; display:block; touch-action:manipulation; }
+  svg path, svg circle, svg ellipse, svg rect { cursor:pointer; stroke:#333; stroke-width:2.5; }
+  #palette { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:14px 0; }
+  .color { width:38px; height:38px; border-radius:50%; border:3px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.2); cursor:pointer; }
+  .color.active { outline:3px solid #d6336c; transform:scale(1.15); }
+  #tools { display:flex; gap:10px; margin-bottom:20px; }
+  .tool { border:none; border-radius:12px; padding:12px 18px; font-size:15px; font-weight:bold; cursor:pointer; }
+  #undo { background:#ffe3ee; color:#d6336c; }
+  #clear { background:#fff0f0; color:#c00; }
+  #save { background:#d6336c; color:#fff; }
+</style>
+</head>
+<body>
+<h1>🎨 ألواني</h1>
+<p class="sub">لوني أحلى رسومات، واحفظيها عندك</p>
+<div id="pages"></div>
+<div id="board"><svg id="svg" viewBox="0 0 400 400"></svg></div>
+<div id="palette"></div>
+<div id="tools">
+  <button class="tool" id="undo">↩️ تراجع</button>
+  <button class="tool" id="clear">🗑️ امسحي الكل</button>
+  <button class="tool" id="save">💾 احفظي الصورة</button>
+</div>
+
+<script>
+const PAGES = [
+{ name:'🐱 قطة', svg: `
+  <circle cx="200" cy="215" r="105" data-f="body"/>
+  <path d="M130 140 L115 60 L185 115 Z" data-f="ear1"/>
+  <path d="M270 140 L285 60 L215 115 Z" data-f="ear2"/>
+  <circle cx="160" cy="200" r="12" fill="#333" data-nofill="1"/>
+  <circle cx="240" cy="200" r="12" fill="#333" data-nofill="1"/>
+  <path d="M188 240 L212 240 L200 258 Z" data-f="nose"/>
+  <path d="M118 275 Q200 318 282 275 L282 300 Q200 345 118 300 Z" data-f="collar"/>
+  <circle cx="200" cy="288" r="10" data-f="bell"/>
+`},
+{ name:'🧁 كب كيك', svg: `
+  <path d="M130 220 L150 340 L250 340 L270 220 Z" data-f="cup"/>
+  <path d="M115 215 Q200 175 285 215 L285 230 L115 230 Z" data-f="cream1"/>
+  <path d="M130 190 Q200 120 270 190 Q200 160 130 190 Z" data-f="cream2"/>
+  <circle cx="200" cy="110" r="18" data-f="cherry"/>
+  <path d="M200 92 Q215 70 235 78" fill="none" stroke="#333" stroke-width="3" data-nofill="1"/>
+  <rect x="165" y="255" width="14" height="30" rx="6" data-f="spr1"/>
+  <rect x="220" y="265" width="14" height="30" rx="6" data-f="spr2"/>
+  <rect x="192" y="290" width="14" height="30" rx="6" data-f="spr3"/>
+`},
+{ name:'👗 فستان', svg: `
+  <path d="M175 60 L225 60 L235 140 L165 140 Z" data-f="top"/>
+  <path d="M165 140 L110 320 Q200 355 290 320 L235 140 Z" data-f="skirt"/>
+  <path d="M175 60 Q160 40 140 50 L150 90 L175 90 Z" data-f="sleeve1"/>
+  <path d="M225 60 Q240 40 260 50 L250 90 L225 90 Z" data-f="sleeve2"/>
+  <rect x="163" y="135" width="74" height="16" rx="8" data-f="belt"/>
+  <circle cx="200" cy="143" r="9" data-f="buckle"/>
+  <path d="M140 250 Q200 275 260 250 L265 275 Q200 300 135 275 Z" data-f="frill"/>
+`},
+{ name:'🦋 فراشة', svg: `
+  <ellipse cx="200" cy="200" rx="14" ry="75" data-f="body"/>
+  <path d="M186 155 Q110 60 70 140 Q60 200 186 200 Z" data-f="wing1"/>
+  <path d="M214 155 Q290 60 330 140 Q340 200 214 200 Z" data-f="wing2"/>
+  <path d="M186 215 Q120 230 110 300 Q140 340 186 260 Z" data-f="wing3"/>
+  <path d="M214 215 Q280 230 290 300 Q260 340 214 260 Z" data-f="wing4"/>
+  <circle cx="140" cy="140" r="18" data-f="dot1"/>
+  <circle cx="260" cy="140" r="18" data-f="dot2"/>
+  <circle cx="200" cy="95" r="16" data-f="head"/>
+`}
+];
+
+const COLORS = ['#ff5d8f','#ff8fab','#ffc2d4','#ffd166','#ff9770','#b388eb','#8093f1','#72ddf7','#7bf1a8','#f7f7f7','#c9ada7','#8d6e63','#555555','#ffffff'];
+const svg = document.getElementById('svg');
+let current = COLORS[0];
+let history = [];
+let pageIndex = -1;
+
+function buildPalette() {
+  const p = document.getElementById('palette');
+  COLORS.forEach((c, i) => {
+    const d = document.createElement('div');
+    d.className = 'color' + (i === 0 ? ' active' : '');
+    d.style.background = c;
+    d.onclick = () => { current = c; document.querySelectorAll('.color').forEach(x => x.classList.remove('active')); d.classList.add('active'); };
+    p.appendChild(d);
+  });
+}
+
+function buildPages() {
+  const p = document.getElementById('pages');
+  PAGES.forEach((pg, i) => {
+    const b = document.createElement('button');
+    b.className = 'pageBtn';
+    b.textContent = pg.name;
+    b.onclick = () => loadPage(i);
+    p.appendChild(b);
+  });
+}
+
+function loadPage(i) {
+  if (i === pageIndex) return;
+  pageIndex = i;
+  history = [];
+  svg.innerHTML = PAGES[i].svg;
+  svg.querySelectorAll('[data-f]').forEach(el => {
+    el.setAttribute('fill', '#ffffff');
+    el.addEventListener('click', () => {
+      history.push({ el, prev: el.getAttribute('fill') });
+      el.setAttribute('fill', current);
+    });
+  });
+  document.querySelectorAll('.pageBtn').forEach((b, j) => b.classList.toggle('active', j === i));
+}
+
+document.getElementById('undo').onclick = () => {
+  const last = history.pop();
+  if (last) last.el.setAttribute('fill', last.prev);
+};
+document.getElementById('clear').onclick = () => {
+  svg.querySelectorAll('[data-f]').forEach(el => { history.push({ el, prev: el.getAttribute('fill') }); el.setAttribute('fill', '#ffffff'); });
+};
+document.getElementById('save').onclick = () => {
+  const xml = new XMLSerializer().serializeToString(svg);
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = 800; c.height = 800;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 800, 800);
+    ctx.drawImage(img, 0, 0, 800, 800);
+    const a = document.createElement('a');
+    a.download = 'coloring.png';
+    a.href = c.toDataURL('image/png');
+    a.click();
+  };
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+};
+
+buildPalette();
+buildPages();
+loadPage(0);
+</script>
+</body>
+</html>
