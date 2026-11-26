@@ -10,7 +10,10 @@ button-tiktok: تابعنا على تيك توك
 facebook-link: https://www.facebook.com/61580706670634/
 tiktok-link: https://www.tiktok.com/@mohamed.badr511
 order-title: اطلب دلوقتي
-work-title: من شغلنا
+work-curtains-title: ستاير
+work-corner-title: ركن
+work-beds-title: سراير
+work-other-title: أعمال جديدة
 services-title: خدماتنا
 curtains-classic-title: ستاير كلاسيك وفخمة
 curtains-modern-title: ستاير مودرن
